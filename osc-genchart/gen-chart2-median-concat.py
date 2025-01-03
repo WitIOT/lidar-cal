@@ -81,7 +81,7 @@ def plot_lidar_data(data, oc_cal, oc_dis, folder_path):
     """
     fig, ax = plt.subplots(figsize=(10, 6))
 
-    ax.plot(oc_cal, oc_dis, color='green', linewidth=1, label="old software")
+    # ax.plot(oc_cal, oc_dis, color='green', linewidth=1, label="old software")
     ax.plot(data['Digitizer Signal (v * m²)'], data['Distance (m)'], color='red', linewidth=1, label="new software")
 
     ax.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
@@ -115,7 +115,7 @@ def main():
     oc_cal = json_data[0]['OC_cal']
     oc_dis = json_data[0]['dis']
 
-    folder_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
+    folder_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
 
     if os.path.isdir(folder_path):
         try:

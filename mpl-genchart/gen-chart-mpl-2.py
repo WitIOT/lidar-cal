@@ -33,12 +33,12 @@ def browse_file():
     return file_path
 
 # ฟังก์ชันสำหรับคำนวณ Distance
-def calculate_distance(time):
-    Distance = [ 2/  x * 3e8  for x in time]
-    return Distance
+def calculate_distance(range):
+    range_m = [x * 1000 for x in range]
+    return range_m
 
-def calculate_Digitizer_signal(copol_raw, copol_background, range_raw):
-    R_squared = [(copol_raw[i] - copol_background) * (range_raw[i] ** 2) for i in range(len(copol_raw))]
+def calculate_Digitizer_signal(copol_raw, copol_background, Distance):
+    R_squared = [(copol_raw[i] - copol_background) * (Distance[i] ** 2) for i in range(len(copol_raw))]
     return R_squared
 
 # เลือกไฟล์ CSV ผ่าน UI
@@ -48,8 +48,8 @@ if csv_file:
 
     # แสดงผลข้อมูลที่ดึงมา
     if copol_raw is not None and copol_background is not None and range_raw is not None :
-        # print("copol_raw:", copol_raw[:5])  # แสดงตัวอย่างข้อมูล 5 ตัวแรก
-        # print("copol_nrb:", copol_nrb[:5])  # แสดงตัวอย่างข้อมูล 5 ตัวแรก
+        print("copol_raw:", copol_raw[:5])  # แสดงตัวอย่างข้อมูล 5 ตัวแรก
+        print("copol_background:", copol_background[:5])  # แสดงตัวอย่างข้อมูล 5 ตัวแรก
 
 
         # ตรวจสอบความยาวของรายการ
@@ -58,8 +58,8 @@ if csv_file:
         range_raw = range_raw[:min_length]
 
         copol_background = copol_background[0]  # สมมติว่า copol_background มีเพียงค่าเดียว
-
-        Distance = range_raw
+        range_m = calculate_distance(range_raw)
+        Distance = range_m
         R_squared = calculate_Digitizer_signal(copol_raw, copol_background, Distance)
         # ดึงชื่อไฟล์จากเส้นทาง
         file_name = os.path.basename(csv_file)
@@ -77,8 +77,8 @@ if csv_file:
         plt.title(f"MPL : {formatted_timestamp}" , fontsize=16)
         plt.xlabel("Digitizer Signal (R_squared)")
         plt.ylabel("Distance (km.)")
-        plt.xlim(0)
-        plt.ylim(0)
+        plt.xlim(0) # ตั้งค่าให้แกน x ไม่ต่ำกว่า 0
+        plt.ylim(0,5) # ตั้งค่าให้แกน y ไม่ต่ำกว่า 0 และไม่เกิน 5
         plt.grid(True)
         plt.legend()
         plt.show()
