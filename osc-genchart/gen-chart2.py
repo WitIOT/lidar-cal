@@ -6,23 +6,6 @@ from tkinter import Tk, filedialog
 from tqdm import tqdm
 import json
 
-#  def plot_lidar_data(data, oc_cal, oc_dis):
-#     plt.figure(figsize=(10, 6))
-    
-#     # ข้อมูลเดิม
-#     # plt.scatter(data['Digitizer Signal (v * m²)'], data['Distance (m)'], color='red', label="Distance vs Digitizer Signal", alpha=0.7)
-#     plt.plot(data['Digitizer Signal (v * m²)'], data['Distance (m)'], color='red', linewidth=2, label="new-data")
-#     plt.plot(oc_cal, oc_dis, color='green', linewidth=2, label="old-data")
-    
-#     plt.title("LIDAR Signal Analyzer - Combined Data", fontsize=14)
-#     plt.xlabel("Digitizer Signal (v * m²) : c * Time / 2", fontsize=12)
-#     plt.ylabel("Distance (m) : Ampl * Distance (m) **2", fontsize=12)
-#     plt.grid(True)
-#     plt.xlim(left=0)
-#     plt.ylim(bottom=0)
-#     plt.legend()
-#     plt.show()
-
 def plot_lidar_data(data, oc_cal, oc_dis):
     fig, ax = plt.subplots(figsize=(10, 6))
     
@@ -32,8 +15,12 @@ def plot_lidar_data(data, oc_cal, oc_dis):
 
     # ตั้งค่ากราฟ
     ax.set_title("LIDAR Signal Analyzer - 03/04/2024 20.00", fontsize=14)
-    ax.set_xlabel("Digitizer Signal (v * m²) : Ampl * (Distance (m) ** 2) ", fontsize=12)
-    ax.set_ylabel("Distance (m) : (Time * c) / 2", fontsize=12)
+    ax.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
+    ax.set_ylabel("Distance (m)", fontsize=12)
+
+    ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0)
+
     ax.grid(True)
     ax.legend()
 
@@ -63,9 +50,10 @@ def plot_lidar_data(data, oc_cal, oc_dis):
         
         # ปรับขนาดแกน x และ y อัตโนมัติ
         if x_data and y_data:  # ป้องกันกรณีไม่มีข้อมูลที่แสดง
-            # ax.set_xlim(0, max(x_data))  # left=0 เสมอ
-            ax.set_xlim(min(x_data), max(x_data))
+            ax.set_xlim(0, max(x_data))  # left=0 เสมอ
+            # ax.set_xlim(min(x_data), max(x_data))
             ax.set_ylim(min(y_data), max(y_data))
+            ax.set_ylim(0, max(y_data))
         else:  # หากไม่มีข้อมูลที่แสดง ให้รีเซ็ตขอบเขต
             ax.set_xlim(0, 1)
             ax.set_ylim(0, 1)
@@ -100,18 +88,14 @@ def process_files(file_paths):
         raise ValueError("All files must have the same number of rows.")
 
     # ใช้ Mean ในการหาค่าเฉลี่ยของแต่ละแถวจากทุกไฟล์
-    combined_data = pd.concat(file_data).groupby(level=0).mean()
+    combined_data = pd.concat(file_data).groupby(level=0).median()
 
-    # คำนวณค่าตามสูตร
-    c = 3e8 # m/s
+    c = 3e8
+    combined_data = combined_data[combined_data['Time'] > 10e-6]
+    combined_data['Time'] = combined_data['Time'] - 10e-6
     combined_data['Ampl'] = -combined_data['Ampl']
-    # combined_data['Time'] = combined_data['Time'] * 1e6 # แปลงเป็น นาโนวินาทีต่อจุด
-    # combined_data['Ampl'] = combined_data['Ampl'] * 1000  # คูณ 1,000 เพื่อเปลี่ยนเป็น mV
-
-
-    combined_data['Distance (m)'] = (combined_data['Time'] * c) /2 
-
-    combined_data['Digitizer Signal (v * m²)'] = combined_data['Ampl'] * (combined_data['Distance (m)'] **2) 
+    combined_data['Distance (m)'] = (combined_data['Time'] * c) / 2
+    combined_data['Digitizer Signal (v * m²)'] = combined_data['Ampl'] * (combined_data['Distance (m)'] ** 2)
 
     # กรองข้อมูลผิดปกติ
     combined_data = filter_outliers(combined_data)

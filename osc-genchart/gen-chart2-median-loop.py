@@ -96,7 +96,7 @@ def main():
     oc_cal = json_data[0]['OC_cal']
     oc_dis = json_data[0]['dis']
 
-    folder_path = "../csv-03-04-2024-tmp4-20-00"
+    folder_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
 
     if os.path.isdir(folder_path):
         try:
