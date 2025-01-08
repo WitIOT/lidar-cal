@@ -88,30 +88,42 @@ def debug(copol_raw, copol_background, range_raw, combined_data):
 
 def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp):
     """
-    ฟังก์ชันวาดกราฟ MPL และ OSC
+    ฟังก์ชันวาดกราฟ MPL และ OSC โดยปรับป้ายชื่อให้อยู่ในตำแหน่งเดียวกัน
     """
     fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    # MPL: Plot on the primary y-axis
-    ax1.plot(R_sq_mpl, distance_mpl, color='blue', linewidth=2, label='MPL')
+    # MPL Plot (แกน Y ด้านซ้าย)
+    mpl_line, = ax1.plot(R_sq_mpl, 
+                         distance_mpl, 
+                         color='blue', 
+                         linewidth=2, 
+                         label='MPL')
     ax1.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
     ax1.set_ylabel("Distance (m)", fontsize=12, color='blue')
+    ax1.set_xlim(0)
+    ax1.set_ylim(0, 5000)
     ax1.tick_params(axis='y', labelcolor='blue')
     ax1.grid(True)
 
-    # Create a secondary y-axis for OSC
-    ax2 = ax1.twinx()
-    ax2.plot(R_sq_osc, range_osc, color='red', linewidth=2, label='OSC')
-    ax2.set_ylabel("Distance (m) (OSC)", fontsize=12, color='red')
+    # OSC Plot (แกน Y ด้านบน)
+    ax2 = ax1.twiny()  # สร้างแกน X รอง
+    osc_line, = ax2.plot(R_sq_osc, 
+                         range_osc, 
+                         color='red', 
+                         linewidth=2, 
+                         label='OSC')
+    ax2.set_ylabel("Range OSC (m)", fontsize=12, color='red')
+    ax2.set_xlim(0)
+    ax2.set_ylim(0, 5000)
     ax2.tick_params(axis='y', labelcolor='red')
 
-    # Add a title and legend
-    fig.suptitle(f"MPL : {formatted_timestamp}", fontsize=16, fontweight='bold')
-    ax1.legend(loc='upper left', bbox_to_anchor=(0.1, 1))
-    ax2.legend(loc='upper right', bbox_to_anchor=(0.9, 1))
+    # รวมป้ายชื่อ MPL และ OSC ในกรอบเดียว
+    ax1.legend(handles=[mpl_line, osc_line], loc='upper right', bbox_to_anchor=(1, 1))
+
+    # Title
+    fig.suptitle(f"ALIN : {formatted_timestamp}", fontsize=16, fontweight='bold')
 
     plt.show()
-
 
 
 def main():
