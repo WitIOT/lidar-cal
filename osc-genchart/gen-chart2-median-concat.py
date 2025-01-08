@@ -64,6 +64,8 @@ def process_files(file_data):
     combined_data['Distance (m)'] = (combined_data['Time'] * c) / 2
     combined_data['Digitizer Signal (v * m²)'] = combined_data['Ampl'] * (combined_data['Distance (m)'] ** 2)
 
+    combined_data['Distance (km)'] = combined_data['Distance (m)'] / 1000
+
     return combined_data
 
 def extract_date_from_folder(folder_path):
@@ -83,11 +85,15 @@ def plot_lidar_data(data, oc_cal, oc_dis, folder_path):
 
     # ax.plot(oc_cal, oc_dis, color='green', linewidth=1, label="old software")
     ax.plot(data['Digitizer Signal (v * m²)'], data['Distance (m)'], color='red', linewidth=1, label="new software")
+    # ax.plot(data['Digitizer Signal (v * m²)'], data['Distance (km)'], color='red', linewidth=1, label="new software")
+
 
     ax.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
     ax.set_ylabel("Distance (m)", fontsize=12)
-    ax.set_xlim(left=0)
-    ax.set_ylim(bottom=0)
+    # ax.set_ylabel("Distance (km)", fontsize=12)
+    # ax.set_xlim(left=0)
+    ax.set_ylim(bottom=0,top=5000)
+    ax.grid(True)
 
     date_str = extract_date_from_folder(folder_path)
     chart_title = f"LIDAR Signal Analyzer {date_str}"
@@ -115,8 +121,8 @@ def main():
     oc_cal = json_data[0]['OC_cal']
     oc_dis = json_data[0]['dis']
 
-    folder_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
-
+    folder_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
+    # folder_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
     if os.path.isdir(folder_path):
         try:
             file_data = load_files(folder_path)

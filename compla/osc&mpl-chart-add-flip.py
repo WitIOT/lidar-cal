@@ -90,28 +90,29 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp):
     """
     ฟังก์ชันวาดกราฟ MPL และ OSC
     """
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(R_sq_mpl, 
-            distance_mpl, 
-            color='blue', 
-            linewidth=2, 
-            label='MPL')
-    
-    ax.plot(R_sq_osc, 
-            range_osc, 
-            color='red', 
-            linewidth=2, 
-            label='OSC')
-    
-    fig.suptitle(f"MPL : {formatted_timestamp}", fontsize=16 ,fontweight='bold')
+    fig, ax1 = plt.subplots(figsize=(10, 6))
 
-    ax.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
-    ax.set_ylabel("Distance (m)", fontsize=12)
-    ax.set_xlim(0)
-    ax.set_ylim(0, 5000)
-    ax.grid(True)
-    ax.legend(loc='upper right', bbox_to_anchor=(1, 1))
+    # MPL: Plot on the primary y-axis
+    ax1.plot(R_sq_mpl, distance_mpl, color='blue', linewidth=2, label='MPL')
+    ax1.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
+    ax1.set_ylabel("Distance (m)", fontsize=12, color='blue')
+    ax1.tick_params(axis='y', labelcolor='blue')
+    ax1.grid(True)
+
+    # Create a secondary y-axis for OSC
+    ax2 = ax1.twinx()
+    ax2.plot(R_sq_osc, range_osc, color='red', linewidth=2, label='OSC')
+    ax2.set_ylabel("Distance (m) (OSC)", fontsize=12, color='red')
+    ax2.tick_params(axis='y', labelcolor='red')
+
+    # Add a title and legend
+    fig.suptitle(f"MPL : {formatted_timestamp}", fontsize=16, fontweight='bold')
+    ax1.legend(loc='upper left', bbox_to_anchor=(0.1, 1))
+    ax2.legend(loc='upper right', bbox_to_anchor=(0.9, 1))
+
     plt.show()
+
+
 
 def main():
     csv_file = browse_file()

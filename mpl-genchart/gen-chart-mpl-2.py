@@ -72,13 +72,13 @@ if csv_file:
         formatted_timestamp = timestamp.strftime("%Y-%m-%d %H:%M")
 
         plt.figure(figsize=(10, 6))
-        plt.plot(R_squared, range_raw, color='blue', linewidth=2, label='Digitizer Signal vs Distance')
+        plt.plot(R_squared, range_m, color='blue', linewidth=2, label='Digitizer Signal vs Distance')
         # ตั้งค่าชื่อกราฟและแกน
         plt.title(f"MPL : {formatted_timestamp}" , fontsize=16)
         plt.xlabel("Digitizer Signal (R_squared)")
-        plt.ylabel("Distance (km.)")
+        plt.ylabel("Distance (m.)")
         plt.xlim(0) # ตั้งค่าให้แกน x ไม่ต่ำกว่า 0
-        plt.ylim(0,5) # ตั้งค่าให้แกน y ไม่ต่ำกว่า 0 และไม่เกิน 5
+        plt.ylim(0,6000) # ตั้งค่าให้แกน y ไม่ต่ำกว่า 0 และไม่เกิน 5
         plt.grid(True)
         plt.legend()
         plt.show()
