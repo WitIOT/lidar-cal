@@ -3,6 +3,8 @@ from tkinter import Tk, filedialog
 import matplotlib.pyplot as plt
 import os
 from datetime import datetime
+import json
+
 
 # ฟังก์ชันสำหรับดึงข้อมูลจากไฟล์ CSV
 def mplfile(csv_file):
@@ -86,7 +88,7 @@ def debug(copol_raw, copol_background, range_raw, combined_data):
     print("median_data[Ampl]:", combined_data['Time'][:5])
     return range_raw, copol_raw, copol_background, combined_data
 
-def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp):
+def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp, oc_cal, oc_dis):
     """
     ฟังก์ชันวาดกราฟ MPL และ OSC โดยปรับป้ายชื่อให้อยู่ในตำแหน่งเดียวกัน
     """
@@ -99,10 +101,10 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp):
                          linewidth=2, 
                          label='MPL')
     ax1.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
-    ax1.set_ylabel("Distance (m)", fontsize=12, color='blue')
+    ax1.set_ylabel("Distance (m)", fontsize=12)
     ax1.set_xlim(0)
     ax1.set_ylim(0, 5000)
-    ax1.tick_params(axis='y', labelcolor='blue')
+    ax1.tick_params(axis='y')
     ax1.grid(True)
 
     # OSC Plot (แกน Y ด้านบน)
@@ -112,19 +114,46 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp):
                          color='red', 
                          linewidth=2, 
                          label='OSC')
-    ax2.set_ylabel("Range OSC (m)", fontsize=12, color='red')
+    # ax2.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
+    ax2.set_ylabel("Distance (m)", fontsize=12)
     ax2.set_xlim(0)
     ax2.set_ylim(0, 5000)
-    ax2.tick_params(axis='y', labelcolor='red')
+    ax2.tick_params(axis='y')
+    # ax2.grid(True)
+
+
+    # ax3 = ax1.twiny()  # สร้างแกน X รอง
+    # old_line, = ax3.plot(oc_cal, 
+    #                      oc_dis, 
+    #                      color='green', 
+    #                      linewidth=2, 
+    #                      label='old software')
+    # ax3.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
+    # ax3.set_ylabel("Distance (m)", fontsize=12)
+    # ax3.set_xlim(0)
+    # ax3.set_ylim(0, 5000)
+    # ax3.tick_params(axis='y')
+    # ax3.grid(True)
 
     # รวมป้ายชื่อ MPL และ OSC ในกรอบเดียว
-    ax1.legend(handles=[mpl_line, osc_line], loc='upper right', bbox_to_anchor=(1, 1))
+    # ax1.legend(handles=[mpl_line, osc_line,old_line], loc='upper right', bbox_to_anchor=(1, 1))
+    ax1.legend(handles=[mpl_line,osc_line], loc='upper right', bbox_to_anchor=(1, 1))
+    # ax1.legend(handles=[osc_line,old_line], loc='upper right', bbox_to_anchor=(1, 1))
+    # ax1.legend(handles=[osc_line], loc='upper right', bbox_to_anchor=(1, 1))
+    # ax1.legend(handles=[old_line], loc='upper right', bbox_to_anchor=(1, 1))
+
 
     # Title
     fig.suptitle(f"ALIN : {formatted_timestamp}", fontsize=16, fontweight='bold')
 
     plt.show()
 
+def load_json_data(json_file_path):
+    """
+    โหลดข้อมูล JSON
+    """
+    with open(json_file_path, 'r') as f:
+        return json.load(f)
 
 def main():
     csv_file = browse_file()
@@ -133,8 +162,14 @@ def main():
         return
 
     copol_raw, copol_background, range_raw = mplfile(csv_file)
-    osc_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
+    osc_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
     d1 = oscfile(osc_path)
+
+    json_file_path = '../excample-file/ALiN_202404032000.json'
+    json_data = load_json_data(json_file_path)
+
+    oc_cal = json_data[0]['OC_cal']
+    oc_dis = json_data[0]['dis']
     
     if d1 is not None:
         print("Columns in combined_data:", d1.columns)  # ตรวจสอบคอลัมน์
@@ -160,7 +195,7 @@ def main():
         formatted_timestamp = timestamp.strftime("%Y-%m-%d %H:%M")
 
         # เรียกใช้ฟังก์ชันวาดกราฟ
-        plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp)
+        plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp , oc_cal, oc_dis)
     else:
         print("ข้อมูลไม่สมบูรณ์หรือไม่มีข้อมูล OSC")
 
