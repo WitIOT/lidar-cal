@@ -121,14 +121,14 @@ def main():
     oc_cal = json_data[0]['OC_cal']
     oc_dis = json_data[0]['dis']
 
-    folder_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
+    osc_path = "../excample-file/csv-03-04-2024-tmp4-20-00"
     # folder_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
-    if os.path.isdir(folder_path):
+    if os.path.isdir(osc_path):
         try:
-            file_data = load_files(folder_path)
+            file_data = load_files(osc_path)
             data = process_files(file_data)
             if not data.empty:
-                plot_lidar_data(data, oc_cal, oc_dis, folder_path)
+                plot_lidar_data(data, oc_cal, oc_dis, osc_path)
             else:
                 print("No valid data to plot.")
         except Exception as e:

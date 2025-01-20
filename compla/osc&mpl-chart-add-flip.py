@@ -67,10 +67,10 @@ def cal_osc(combined_data):
         # เพิ่มระยะทางในหน่วยกิโลเมตร
         combined_data['distance (km)'] = combined_data['distance (m)'] / 1000
         
-        range_osc = combined_data['distance (m)']
+        distance_osc = combined_data['distance (m)']
         R_sq_osc = combined_data['digitizer signal (v * m²)']
 
-        return range_osc, R_sq_osc
+        return distance_osc, R_sq_osc
     except Exception as e:
         print(f"เกิดข้อผิดพลาดในการประมวลผลข้อมูล OSC: {e}")
         return None, None
@@ -100,8 +100,8 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp, 
                          color='blue', 
                          linewidth=2, 
                          label='MPL')
-    ax1.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
-    ax1.set_ylabel("Distance (m)", fontsize=12)
+    ax1.set_xlabel("Digitizer Signal (v * m²)", fontsize=14)
+    ax1.set_ylabel("Distance (m)", fontsize=16)
     ax1.set_xlim(0)
     ax1.set_ylim(0, 5000)
     ax1.tick_params(axis='y')
@@ -115,7 +115,7 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp, 
                          linewidth=2, 
                          label='OSC')
     # ax2.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
-    ax2.set_ylabel("Distance (m)", fontsize=12)
+    ax2.set_ylabel("Distance (m)", fontsize=14, )
     ax2.set_xlim(0)
     ax2.set_ylim(0, 5000)
     ax2.tick_params(axis='y')
@@ -155,14 +155,31 @@ def load_json_data(json_file_path):
     with open(json_file_path, 'r') as f:
         return json.load(f)
 
-def main():
-    csv_file = browse_file()
-    if not csv_file:
-        print("ไม่มีการเลือกไฟล์")
-        return
+def save_to_json(R_sq_mpl, distance_mpl, distance_osc, R_sq_osc, timestamp_str):
+    try:
+        data = {
+            "R_sq_mpl": R_sq_mpl,
+            "distance_mpl": distance_mpl,
+            "R_sq_osc": R_sq_osc,
+            "distance_osc": distance_osc
+        }
+        filename = f"ALiN_{timestamp_str}.json"
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+        print(f"ข้อมูลถูกบันทึกในไฟล์ {filename}")
+    except Exception as e:
+        print(f"เกิดข้อผิดพลาดในการบันทึกข้อมูล: {e}")
 
-    copol_raw, copol_background, range_raw = mplfile(csv_file)
-    osc_path = "../excample-file/csv-28-11-2024-tmp4-19-25"
+def main():
+    # mpl_path = browse_file()
+    # if not mpl_path:
+    #     print("ไม่มีการเลือกไฟล์")
+    #     return
+
+    mpl_path = "../excample-file/mpl/20241128/MPL_5038_202411281855.csv"
+    osc_path = "../excample-file/osc/csv-28-11-2024-tmp4-18-55"
+
+    copol_raw, copol_background, range_raw = mplfile(mpl_path)
     d1 = oscfile(osc_path)
 
     json_file_path = '../excample-file/ALiN_202404032000.json'
@@ -177,11 +194,11 @@ def main():
         print("ไม่สามารถโหลดข้อมูล OSC ได้")
         return
 
-    debug(copol_raw, copol_background, range_raw, d1)
+    # debug(copol_raw, copol_background, range_raw, d1)
 
     if copol_raw is not None and copol_background is not None and range_raw is not None and d1 is not None:
-        range_osc, R_sq_osc = cal_osc(d1)
-        if range_osc is None or R_sq_osc is None:
+        distance_osc, R_sq_osc = cal_osc(d1)
+        if distance_osc is None or R_sq_osc is None:
             print("การคำนวณ OSC ล้มเหลว")
             return
 
@@ -189,13 +206,15 @@ def main():
         distance_mpl = range_mpl(range_raw)
         R_sq_mpl = R_squared_mpl(copol_raw, copol_background, distance_mpl)
 
-        file_name = os.path.basename(csv_file)
+        file_name = os.path.basename(mpl_path)
         timestamp_str = file_name.split('_')[2].split('.')[0]
         timestamp = datetime.strptime(timestamp_str, "%Y%m%d%H%M")
         formatted_timestamp = timestamp.strftime("%Y-%m-%d %H:%M")
 
         # เรียกใช้ฟังก์ชันวาดกราฟ
-        plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp , oc_cal, oc_dis)
+        # save_to_json(R_sq_mpl, distance_mpl, distance_osc, R_sq_osc, timestamp_str)
+
+        plot_data(R_sq_mpl, distance_mpl, distance_osc, R_sq_osc, formatted_timestamp , oc_cal, oc_dis)
     else:
         print("ข้อมูลไม่สมบูรณ์หรือไม่มีข้อมูล OSC")
 
