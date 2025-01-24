@@ -128,7 +128,7 @@ def plot_data(R_sq_mpl, distance_mpl, range_osc, R_sq_osc, formatted_timestamp, 
     #                      color='green', 
     #                      linewidth=2, 
     #                      label='old software')
-    # ax3.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
+    # # ax3.set_xlabel("Digitizer Signal (v * m²)", fontsize=12)
     # ax3.set_ylabel("Distance (m)", fontsize=12)
     # ax3.set_xlim(0)
     # ax3.set_ylim(0, 5000)
@@ -176,8 +176,8 @@ def main():
     #     print("ไม่มีการเลือกไฟล์")
     #     return
 
-    mpl_path = "../excample-file/mpl/20241128/MPL_5038_202411281855.csv"
-    osc_path = "../excample-file/osc/csv-28-11-2024-tmp4-18-55"
+    mpl_path = "../excample-file/mpl/20250121/MPL_5038_202501211936.csv"
+    osc_path = "../excample-file/osc/csv-21-01-2025-tmp2-19-37"
 
     copol_raw, copol_background, range_raw = mplfile(mpl_path)
     d1 = oscfile(osc_path)
